@@ -120,7 +120,7 @@ public abstract class JProject implements ExternalProject {
      */
     @Override
     public void validateProject() throws ProjectException {
-        log.debug("Validando el proyecto '" + getPath() + "'");
+        log.info("Validando el proyecto '" + getPath() + "'");
 
         // validar que exista la ruta del proyecto
         File fprj = new File(getPath());

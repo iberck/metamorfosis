@@ -106,7 +106,6 @@ public class FreemarkerEngine implements TemplateEngine {
             Environment env = template.createProcessingEnvironment(root, sw);
             env.process(); // process the template
             sw.close();
-            log.debug("->Resultado del matcheo:" + sw.toString());
         } catch (TemplateException ex) {
             String templateName = templateModel.getTemplateDef().getName();
             throw new MatchException("No se pudo hacer match del template '" +
@@ -120,6 +119,8 @@ public class FreemarkerEngine implements TemplateEngine {
 
     @Override
     public void setUpEnvironment(ExternalProject project) {
+        log.info("Setting up freemarker environment");
+        
         project.setProjectWrapperFactory(
                 getEngineWrappersFactory().getProjectWrapperFactory());
         projectWrapped = (Map) project.getProjectWrapper().wrap(project);
@@ -137,6 +138,8 @@ public class FreemarkerEngine implements TemplateEngine {
 
     @Override
     public void setUpDirectives() {
+        log.info("Setting up freemarker directives");
+        
         directivesWrapped = new HashMap();
 
         TemplateDirective[] fmDirectives = SpringUtils.getFreemarkerDirectives();

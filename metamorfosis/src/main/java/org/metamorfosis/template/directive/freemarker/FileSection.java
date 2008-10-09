@@ -58,7 +58,7 @@ public class FileSection extends Observable
     public void execute(Environment env,
             Map params, TemplateModel[] loopVars,
             TemplateDirectiveBody body) {
-        log.debug("Executing <@" + getDirectiveName() + " .../>");
+        log.debug("Ejecutando <@" + getDirectiveName() + " .../>");
 
         // Check if params were given
         if (params.isEmpty()) {

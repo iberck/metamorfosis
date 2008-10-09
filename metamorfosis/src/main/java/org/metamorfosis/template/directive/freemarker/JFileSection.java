@@ -53,8 +53,6 @@ public class JFileSection extends Observable implements TemplateDirectiveModel, 
     private ProjectHolder projectHolder;
 
     public JFileSection() {
-        // TODO: Desacoplar esto, no deberia tomar el proyecto del observador
-        // mas bien de un proyect holder
         pool = (TemplatesWriterPool) SpringUtils.getBean("templatesWriterPool");
         addObserver(pool);
 
@@ -64,7 +62,7 @@ public class JFileSection extends Observable implements TemplateDirectiveModel, 
     @Override
     public void execute(Environment env, Map params, TemplateModel[] loopVars,
             TemplateDirectiveBody body) {
-        log.debug("Executing <@" + getDirectiveName() + " .../>");
+        log.debug("Ejecutando <@" + getDirectiveName() + " .../>");
 
         if (loopVars.length != 0) {
             throw new DirectiveException("<@" + getDirectiveName() + " .../> doesn't allow loop variables.");
@@ -123,11 +121,6 @@ public class JFileSection extends Observable implements TemplateDirectiveModel, 
         }
     }
 
-    @Override
-    public String getDirectiveName() {
-        return "JFileSection";
-    }
-
     public static String getJFileName(String source) {
         String fileName = null;
 
@@ -162,11 +155,11 @@ public class JFileSection extends Observable implements TemplateDirectiveModel, 
             path = matcher.group(1).trim();
         }
 
-        // the file does not contain package
-        if (!found) {
-            return "";
-        }
+        return found ? path.replace(".", File.separator) : "";
+    }
 
-        return path.replace(".", File.separator);
+    @Override
+    public String getDirectiveName() {
+        return "JFileSection";
     }
 }

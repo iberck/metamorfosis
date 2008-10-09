@@ -17,6 +17,8 @@
 package org.metamorfosis.model;
 
 import java.util.List;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
@@ -25,6 +27,7 @@ import org.springframework.beans.factory.annotation.Required;
  */
 public class TemplateModel {
 
+    private static final Log log = LogFactory.getLog(TemplateModel.class);
     private TemplateDef templateDef;
     private List<MetaPojo> metaPojos;
     private MetaProperty metaProperty;
@@ -52,5 +55,28 @@ public class TemplateModel {
 
     public void setMetaProperty(MetaProperty metaProperty) {
         this.metaProperty = metaProperty;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder modelStr = new StringBuilder();
+        TemplateDef tDef = getTemplateDef();
+        modelStr.append("Template: " + tDef.getName() + " ");
+
+        modelStr.append("Model[{");
+        MetaProperty property = getMetaProperty();
+        if (property != null) {
+            modelStr.append("property:" + property.getValue() + "}, {");
+        }
+
+        List<MetaPojo> mps = getMetaPojos();
+        if (mps != null) {
+            for (MetaPojo mp : mps) {
+                modelStr.append("metapojo:" + mp.toString());
+            }
+        }
+        modelStr.append("}]");
+
+        return modelStr.toString();
     }
 }

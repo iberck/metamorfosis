@@ -78,12 +78,15 @@ public class AtomicTemplatesMatcher {
     }
 
     private void match() {
+        log.info("Realizando el match de plantillas y modelos");
+
         if (templatesMatch == null && groupsMatch == null) {
             throw new IllegalArgumentException("No se definido ningún templatesMatch ni groupsMatch");
         }
 
         if (templatesMatch != null) {
             for (TemplateModel tModel : templatesMatch) {
+                log.info("Realizando el match de: " + tModel);
                 engine.match(tModel);
             }
         }
@@ -92,6 +95,7 @@ public class AtomicTemplatesMatcher {
             for (TemplateModelsGroup tModelGroup : groupsMatch) {
                 List<TemplateModel> templateModels = tModelGroup.getTemplateModels();
                 for (TemplateModel tModel : templateModels) {
+                    log.info("Realizando el match de: " + tModel);
                     engine.match(tModel);
                 }
             }
@@ -100,7 +104,9 @@ public class AtomicTemplatesMatcher {
 
     private void writeAtomically() {
         try {
+            log.info("Iniciando transacción");
             templatesWriterPool.writeTemplates(project);
+            log.info("transacción ejecutada exitosamente");
         } catch (Exception ex) {
             log.error("Error al escribir los archivos generados", ex);
             templatesWriterPool.rollbackTemplates(project);

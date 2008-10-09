@@ -73,6 +73,7 @@ public class TemplateProcessed {
             // crear el archivo
             sourceFile = new File(sourceDir, getOutputFileName());
             FileUtils.writeStringToFile(sourceFile, getTemplateResult());
+            log.info("Escribiendo el archivo '" + sourceDir + "'");
         } catch (IOException ex) {
             throw new MatchException("Error al escribir el archivo '" + sourceFile + "'", ex);
         }
@@ -81,6 +82,7 @@ public class TemplateProcessed {
     public void rollback(ExternalProject project) {
         // destruir el archivo generado
         File f = new File(project.getPath() + getOutputFolder() + File.separator + getOutputFileName());
+        log.info("Haciendo rollback del archivo '" + f + "'");
         f.delete();
     }
 }
