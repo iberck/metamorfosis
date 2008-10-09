@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+   "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>   
+    <!-- aqui podria definir los templates del framework -->
+    <bean id="internalTemplate" class="org.metamorfosis.model.TemplateDef">
+        <property name="location" value="classpath:templates/internalTemplate.ftl"/>
+    </bean>
+</beans>
