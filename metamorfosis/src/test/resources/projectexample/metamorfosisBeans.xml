@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <!-- 1. definir proyecto -->
+    <bean id="injectedProjectTest" class="org.tequila.model.project.NbJProject">
+        <property name="path" value="C:/projects/InjectedProjectTest"/>
+    </bean>
+
+    <!-- 2. definir metapojos -->
+    <bean id="customerMetaPojo" class="org.tequila.model.JMetaPojo">
+        <!-- TODO: Cambiar por property para ser mas entendible -->
+        <constructor-arg value="org.test.pojos.Customer" />
+    </bean>
+
+    <!-- 3. definir templates, TODO: por el momento solo rutas absolutas -->
+    <bean id="testTemplate" class="org.tequila.model.TemplateDef">
+        <property name="path" value="C:/projects/Metamorfosis-InjectedProjectTest/templates/test1.ftl"/>
+    </bean>
+
+    <!-- 4. definir modelo del template -->
+    <bean id="testTemplateModel" class="org.tequila.model.TemplateModel">
+        <property name="templateDef" ref="testTemplate"/>
+        <property name="metaPojos">
+            <list>
+                <ref bean="customerMetaPojo"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- 5. definir engine -->
+    <bean id="engine" class="org.tequila.template.engine.FreemarkerEngine"/>
+    
+    <!-- 6. definir matcher -->
+    <bean id="atomicMatcher" class="org.tequila.template.match.AtomicTemplatesMatcher">
+        <property name="engine" ref="engine"/>
+        <property name="project" ref="injectedProjectTest"/>
+        
+        <property name="templatesMatch">
+            <list>
+                <ref bean="testTemplateModel"/>
+            </list>
+        </property>
+    </bean>
+
+</beans>
