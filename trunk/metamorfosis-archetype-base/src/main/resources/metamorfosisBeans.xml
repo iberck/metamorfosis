@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+    <import resource="classpath:templates-def.xml"/>
+
+    <!-- 1. definir proyecto -->
+    <bean id="injectedProjectTest" class="org.metamorfosis.model.project.NbJProject">
+        <property name="path" value="D:/projects/project1"/>
+    </bean>
+
+    <!-- 2. definir metapojos -->
+    <bean id="customerMetaPojo" class="org.metamorfosis.model.JMetaPojo">
+        <!-- TODO: Cambiar por property para ser mas entendible -->
+        <constructor-arg value="org.test.pojos.Customer" />
+    </bean>
+
+    <!-- 3. definir templates, TODO: por el momento solo rutas absolutas -->
+    <bean id="testTemplate" class="org.metamorfosis.model.TemplateDef">
+        <property name="location" value="templates/test1.ftl"/>
+    </bean>
+
+    <!-- 4. definir modelo del template -->
+    <bean id="testTemplateModel" class="org.metamorfosis.model.TemplateModel">
+        <property name="templateDef" ref="testTemplate"/>
+        <property name="metaPojos">
+            <list>
+                <ref bean="customerMetaPojo"/>
+            </list>
+        </property>
+    </bean>
+    
+    <!-- ======================== internal template -->
+    <bean id="internalTemplateModel" class="org.metamorfosis.model.TemplateModel">
+        <property name="templateDef" ref="internalTemplate"/>
+        <property name="metaPojos">
+            <list>
+                <ref bean="customerMetaPojo"/>
+            </list>
+        </property>
+    </bean>
+    <!-- ======================== -->
+
+    <!-- 5. definir engine -->
+    <bean id="engine" class="org.metamorfosis.template.engine.FreemarkerEngine"/>
+    
+    <!-- 6. definir matcher -->
+    <bean id="atomicMatcher" class="org.metamorfosis.template.match.AtomicTemplatesMatcher">
+        <property name="engine" ref="engine"/>
+        <property name="project" ref="injectedProjectTest"/>
+        <property name="templatesMatch">
+            <list>
+                <ref bean="testTemplateModel"/>
+                <ref bean="internalTemplateModel"/>
+            </list>
+        </property>
+    </bean>
+</beans>
