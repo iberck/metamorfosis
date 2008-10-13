@@ -22,11 +22,11 @@ import org.springframework.beans.factory.annotation.Required;
  *
  * @author iberck
  */
-public class InjectedField {
+public class FieldProperty {
 
     private String fieldName;
-    private String injectedPropertyName;
-    private Object injectedPropertyValue;
+    private String propertyName;
+    private Object propertyValue;
 
     public String getFieldName() {
         return fieldName;
@@ -37,21 +37,21 @@ public class InjectedField {
         this.fieldName = fieldName;
     }
 
-    public String getInjectedPropertyName() {
-        return injectedPropertyName;
+    public String getPropertyName() {
+        return propertyName;
     }
 
     @Required
-    public void setInjectedPropertyName(String injectedPropertyName) {
-        this.injectedPropertyName = injectedPropertyName;
+    public void setPropertyName(String propertyName) {
+        this.propertyName = propertyName;
     }
 
-    public Object getInjectedPropertyValue() {
-        return injectedPropertyValue;
+    public Object getPropertyValue() {
+        return propertyValue;
     }
 
     @Required
-    public void setInjectedPropertyValue(Object injectedPropertyValue) {
-        this.injectedPropertyValue = injectedPropertyValue;
+    public void setPropertyValue(Object propertyValue) {
+        this.propertyValue = propertyValue;
     }
 }

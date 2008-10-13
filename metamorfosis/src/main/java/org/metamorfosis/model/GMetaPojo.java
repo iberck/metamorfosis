@@ -46,7 +46,7 @@ public class GMetaPojo implements MetaPojo {
     }
 
     @Override
-    public void setInjectedFields(List<InjectedField> injectedFields) {
+    public void setInjectedFields(List<FieldProperty> injectedFields) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

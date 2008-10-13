@@ -16,7 +16,6 @@
  */
 package org.metamorfosis.model;
 
-import org.metamorfosis.model.JMetaPojo;
 import junit.framework.TestCase;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;

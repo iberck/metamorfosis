@@ -16,67 +16,54 @@
  */
 package org.metamorfosis.model;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.commons.beanutils.DynaProperty;
 import org.apache.commons.beanutils.LazyDynaBean;
 import org.apache.commons.beanutils.LazyDynaClass;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
+ * Sigue cuatro principios básicos.
+ *
+ * 1. Se le pueden inyectar propiedades a la clase
+ * 2. Se le pueden inyectar propiedades a los fields
+ * 
+ * 3. Tiene un objeto metaClass el cual contiene una lista de propiedades
+ *    originales e inyectadas.
+ * 4. Las propiedades originales e inyectadas serán accesibles por medio de
+ *    instance.get('propertyName')
  *
  * @author iberck
  */
 public abstract class AbstractMetaClass extends LazyDynaBean {
 
-    private Object original;
-    private MetaClass metaClass;
+    private static final Log log = LogFactory.getLog(AbstractMetaClass.class);
+    private String className;
+    private MetaClassObject metaClass;
+    private Object source;
 
-    public AbstractMetaClass(Object source) {
-        this.original = source;
+    protected AbstractMetaClass(Object instance) {
+        this.source = instance;
     }
 
-    public MetaClass getMetaClass() {
+    protected AbstractMetaClass(String className) {
+        this.className = className;
+    }
+
+    public MetaClassObject getMetaClass() {
         return metaClass;
     }
 
-    public Object getOriginal() {
-        return original;
-    }
-
-    protected void copyOriginalProperties() {
+    private static Object instantiateClass(String className) throws MetaClassException {
         try {
-            // copia todas las propiedades y las pone al servicio con get('propertyName')
-            PropertyUtils.copyProperties(this, original);
+            return Class.forName(className).newInstance();
         } catch (Exception ex) {
-            Logger.getLogger(AbstractMetaClass.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public void injectProperty(String propName, Object propValue) throws MetaPojoException {
-        try {
-            // Pone la propiedad al servicio con get('propName')
-            PropertyUtils.setNestedProperty(this, propName, propValue);
-        } catch (Exception ex) {
-            throw new MetaPojoException("Error al inyectar la propiedad '[" + propName + ", " + propValue + "']", ex);
-        }
-    }
-
-    public void injectFieldProperty(String fieldName, String propertyName, Object propertyValue) {
-        Object fieldObj = null;
-        try {
-            // 1.validar que exista el field y obtenerlo
-            fieldObj = PropertyUtils.getNestedProperty(this, fieldName);
-        } catch (Exception ex) {
-        }
-    }
-
-    protected void replaceProperty(String propertyName, Object propertyValue) {
-        try {
-            removeProperty(propertyName);
-            PropertyUtils.setNestedProperty(this, propertyName, propertyValue);
-        } catch (Exception ex) {
-            Logger.getLogger(AbstractMetaClass.class.getName()).log(Level.SEVERE, null, ex);
+            throw new MetaClassException("Error al instanciar la clase '" + className + "'", ex);
         }
     }
 
@@ -84,20 +71,127 @@ public abstract class AbstractMetaClass extends LazyDynaBean {
      * Borra dinamicamente la propiedad
      * @param name Property name
      */
-    protected void removeProperty(String propertyName) {
+    private void removeProperty(String propertyName) {
         ((LazyDynaClass) getDynaClass()).remove(propertyName);
     }
 
-    public class MetaClass {
+    private void replaceProperty(String propertyName, Object newPropertyValue) {
+        try {
+            removeProperty(propertyName);
+            PropertyUtils.setNestedProperty(this, propertyName, newPropertyValue);
+        } catch (Exception ex) {
+        }
+    }
 
-        private List<MetaClassProperty> properties;
+    protected void copySourceProperties() {
 
-        public List<MetaClassProperty> getProperties() {
-            return properties;
+        if (className != null) {
+            source = instantiateClass(className);
         }
 
-        public void setProperties(List<MetaClassProperty> properties) {
-            this.properties = properties;
+        try {
+            // copia todas las propiedades del objeto original
+            // y las pone al servicio con get('originalPropertyName')
+            PropertyUtils.copyProperties(this, source);
+        } catch (Exception ex) {
+            throw new MetaClassException("Error al crear el metapojo", ex);
+        }
+    }
+
+    protected void injectClassProperty(String propName, Object propValue) throws MetaClassException {
+        try {
+            // Pone la propiedad al servicio con get('injectedPropertyName')
+            PropertyUtils.setNestedProperty(this, propName, propValue);
+        } catch (Exception ex) {
+            throw new MetaClassException("Error al inyectar la propiedad '[" + propName + ", " + propValue + "']", ex);
+        }
+    }
+
+    protected void injectFieldProperty(String fieldName, String propertyName, Object propertyValue) {
+        try {
+            // 1.validar que exista el field y obtenerlo
+            Object fieldObj = PropertyUtils.getNestedProperty(this, fieldName);
+
+            // 2. MetaClass
+            // datos del objeto original (copySource)
+            GMetaClass metaField = new GMetaClass(fieldObj);
+            Map<String, Object> metaFieldClassProperties = new HashMap();
+
+            // datos inyectados (propertyName:propertyValue)
+            metaFieldClassProperties.put(propertyName, propertyValue);
+            metaField.setInjectedClassProperties(metaFieldClassProperties);
+
+            // datos del metaClassProperty (name, type)
+            HashMap propertiesHash = getMetaClass().getPropertiesHash();
+            MetaClassProperty metaClassProperty = new MetaClassProperty();
+            metaClassProperty.setName(fieldName);
+            metaClassProperty.setType(this.getClass());
+            PropertyUtils.copyProperties(metaField, metaClassProperty);
+
+            metaField.initialize();
+
+            // 3. reemplazar propiedad original con el metaField
+            replaceProperty(fieldName, metaField); // accesible por medio de get
+            propertiesHash.put(fieldName, metaField); // accesible por medio de metaclass.properties
+            
+        } catch (Exception ex) {
+            throw new MetaClassException("No existe el field '" + fieldName + "' " +
+                    "dentro de la clase '" + source + "'", ex);
+        }
+    }
+
+    /**
+     * Pone las propiedades existentes dentro del objeto
+     * 
+     * metaClass.properties
+     */
+    protected void createMetaClass() {
+        this.metaClass = new MetaClassObject();
+
+        HashMap propertiesHash = new HashMap();
+
+        // obtener las propiedades inyectadas y meterlas en un hash
+        DynaProperty[] dynaProperties = getDynaClass().getDynaProperties();
+        for (DynaProperty dynaProperty : dynaProperties) {
+            if (!dynaProperty.getName().equals("class")) {
+                MetaClassProperty mcProperty = new MetaClassProperty();
+                mcProperty.setName(dynaProperty.getName());
+                mcProperty.setType(dynaProperty.getType());
+
+                propertiesHash.put(mcProperty.getName(), mcProperty);
+            }
+        }
+
+        // obtener las propiedades del source, si existiera en el hash se
+        // reemplazaría para tener el type correcto ya que los dynaProperties
+        // no tienen el type original.
+        Field[] declaredFields = source.getClass().getDeclaredFields();
+        for (Field field : declaredFields) {
+            MetaClassProperty mcProperty = new MetaClassProperty();
+            mcProperty.setName(field.getName());
+            mcProperty.setType(field.getType());
+
+            propertiesHash.put(mcProperty.getName(), mcProperty);
+        }
+
+        // crear el objeto metaClass
+        this.metaClass.setPropertiesHash(propertiesHash);
+    }
+
+    public class MetaClassObject {
+
+        private HashMap propertiesHash;
+
+        public Collection getProperties() {
+            return propertiesHash.values();
+        }
+
+        public HashMap getPropertiesHash() {
+            return propertiesHash;
+        }
+
+        public void setPropertiesHash(HashMap propertiesHash) {
+            this.propertiesHash = propertiesHash;
         }
     }
 
@@ -121,6 +215,11 @@ public abstract class AbstractMetaClass extends LazyDynaBean {
         public void setType(Class type) {
             this.type = type;
         }
+    }
+
+    @Override
+    public String toString() {
+        return source.toString();
     }
 
     // lazy init

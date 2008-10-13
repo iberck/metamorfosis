@@ -46,16 +46,16 @@ public class JMetaPojo extends LazyDynaBean implements MetaPojo {
     /**
      * Crea una JMetaPojo en base a un objeto
      * @param object
-     * @throws MetaPojoException
+     * @throws MetaClassException
      */
-    protected JMetaPojo(Object instance) throws MetaPojoException {
+    protected JMetaPojo(Object instance) throws MetaClassException {
         this.sourceObject = instance;
 
         try {
             // copia todas las propiedades y las pone al servicio con get('propertyName')
             PropertyUtils.copyProperties(this, instance);
         } catch (Exception ex) {
-            throw new MetaPojoException("Error al crear el metapojo", ex);
+            throw new MetaClassException("Error al crear el metapojo", ex);
         }
     }
 
@@ -63,11 +63,11 @@ public class JMetaPojo extends LazyDynaBean implements MetaPojo {
         return sourceObject;
     }
 
-    protected static Object instantiateClass(String className) throws MetaPojoException {
+    protected static Object instantiateClass(String className) throws MetaClassException {
         try {
             return Class.forName(className).newInstance();
         } catch (Exception ex) {
-            throw new MetaPojoException("Error al instanciar la clase '" + className + "'", ex);
+            throw new MetaClassException("Error al instanciar la clase '" + className + "'", ex);
         }
     }
 
@@ -99,7 +99,7 @@ public class JMetaPojo extends LazyDynaBean implements MetaPojo {
     }
 
     @Override
-    public void injectPojoProperty(String propName, Object propValue) throws MetaPojoException {
+    public void injectPojoProperty(String propName, Object propValue) throws MetaClassException {
         try {
 
             // Pone la propiedad al servicio con get('propName')
@@ -109,7 +109,7 @@ public class JMetaPojo extends LazyDynaBean implements MetaPojo {
 
             declaredFields.put(propName, this);
         } catch (Exception ex) {
-            throw new MetaPojoException("Error al inyectar la propiedad '[" + propName + ", " + propValue + "']", ex);
+            throw new MetaClassException("Error al inyectar la propiedad '[" + propName + ", " + propValue + "']", ex);
         }
     }
 
@@ -140,13 +140,13 @@ public class JMetaPojo extends LazyDynaBean implements MetaPojo {
             declaredFields.put(fieldName, metaField);
 
         } catch (Exception ex) {
-            throw new MetaPojoException("No existe el field '" + fieldName + "' " +
+            throw new MetaClassException("No existe el field '" + fieldName + "' " +
                     "dentro de la clase '" + sourceObject + "'", ex);
         }
     }
 
     @Override
-    public Object createInjectedObject() throws MetaPojoException {
+    public Object createInjectedObject() throws MetaClassException {
         try {
             // se crea a partir del objeto original para preservar el nombre de clase y otros atributos,
             // lo único que cambiara son sus declaredFields
@@ -170,7 +170,7 @@ public class JMetaPojo extends LazyDynaBean implements MetaPojo {
             PropertyUtils.setNestedProperty(this, "class", clazz);
 
         } catch (Exception ex) {
-            throw new MetaPojoException("Error al crear el objeto inyectado", ex);
+            throw new MetaClassException("Error al crear el objeto inyectado", ex);
         }
 
         return this;
@@ -185,11 +185,11 @@ public class JMetaPojo extends LazyDynaBean implements MetaPojo {
     }
 
     @Override
-    public void setInjectedFields(List<InjectedField> injectedFields) {
-        for (InjectedField injectedField : injectedFields) {
+    public void setInjectedFields(List<FieldProperty> injectedFields) {
+        for (FieldProperty injectedField : injectedFields) {
             injectFieldProperty(injectedField.getFieldName(),
-                    injectedField.getInjectedPropertyName(),
-                    injectedField.getInjectedPropertyValue());
+                    injectedField.getPropertyName(),
+                    injectedField.getPropertyValue());
         }
     }
 }

@@ -16,57 +16,59 @@
  */
 package org.metamorfosis.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- *
+ * Lazy
  * @author iberck
  */
 public class GMetaClass extends AbstractMetaClass {
 
-    private Map<String, Object> properties = new HashMap();
-    private List<InjectedField> fields = new ArrayList();
+    private Map<String, Object> injectedClassProperties;
+    private Collection<FieldProperty> injectedFieldProperties;
 
-    public GMetaClass(Object original) {
-        super(original);
+    public GMetaClass(String className) {
+        super(className);
     }
 
-    public void addProperty(String propName, Object propValue) {
-        properties.put(propName, propValue);
+    public GMetaClass(Object instance) {
+        super(instance);
     }
 
-    public void addField(String fieldName, String propertyName, Object propertyValue) {
-        InjectedField field = new InjectedField();
-        field.setFieldName(fieldName);
-        field.setInjectedPropertyName(propertyName);
-        field.setInjectedPropertyValue(propertyValue);
+    public void setInjectedClassProperties(Map<String, Object> injectedClassProperties) {
+        this.injectedClassProperties = injectedClassProperties;
+    }
 
-        fields.add(field);
+    public void setInjectedFieldProperties(Collection<FieldProperty> injectedFieldProperties) {
+        this.injectedFieldProperties = injectedFieldProperties;
     }
 
     @Override
     public void initialize() {
-        // copy original properties
-        super.copyOriginalProperties();
+        super.copySourceProperties();
 
-        // inject properties
-        Set<Entry<String, Object>> entrySet = properties.entrySet();
-        for (Entry<String, Object> entry : entrySet) {
-            String propName = entry.getKey();
-            Object propValue = entry.getValue();
-            injectProperty(propName, propValue);
+        // inject class properties
+        if (injectedClassProperties != null) {
+            Set<Entry<String, Object>> entrySet = injectedClassProperties.entrySet();
+            for (Entry<String, Object> entry : entrySet) {
+                String propName = entry.getKey();
+                Object propValue = entry.getValue();
+                super.injectClassProperty(propName, propValue);
+            }
         }
 
+        super.createMetaClass();
+        
         // inject field properties
-        for (InjectedField injectedField : fields) {
-            injectFieldProperty(injectedField.getFieldName(),
-                    injectedField.getInjectedPropertyName(),
-                    injectedField.getInjectedPropertyValue());
+        if (injectedFieldProperties != null) {
+            for (FieldProperty injectedField : injectedFieldProperties) {
+                super.injectFieldProperty(injectedField.getFieldName(),
+                        injectedField.getPropertyName(),
+                        injectedField.getPropertyValue());
+            }
         }
     }
 }
