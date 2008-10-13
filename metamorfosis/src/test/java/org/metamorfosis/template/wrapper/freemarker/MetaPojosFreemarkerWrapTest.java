@@ -31,9 +31,7 @@ import org.metamorfosis.template.wrapper.MetaPojosWrapper;
  */
 public class MetaPojosFreemarkerWrapTest extends AbstractFreemarkerTestCase {
 
-    public MetaPojosFreemarkerWrapTest(String testName) {
-        super(testName);
-    }
+    
 
     @Override
     protected void setUp() throws Exception {
