@@ -16,22 +16,31 @@
  */
 package org.metamorfosis.model;
 
-import java.util.List;
-import java.util.Map;
-
 /**
- *
+ * Modela las excepciones en tiempo de ejecución de los metapojos
  * @author iberck
  */
-public interface MetaPojo {
+public class MetaClassException extends RuntimeException {
 
-    public void injectPojoProperty(String propertyName, Object propertyValue);
+    /**
+     * Crea una excepcion vacía
+     */
+    public MetaClassException() {
+    }
 
-    public void injectFieldProperty(String fieldName, String propertyName, Object propertyValue);
+    /**
+     * Crea una excepción con un mensaje
+     * @param msg
+     */
+    public MetaClassException(String msg) {
+        super(msg);
+    }
 
-    public Object createInjectedObject();
-
-    public void setInjectedPropertiesMap(Map<String, Object> m);
-
-    public void setInjectedFields(List<FieldProperty> injectedFields);
+    /**
+     * Crea una excepción con un mensaje y un objeto con la excepcion
+     * @param msg
+     */
+    public MetaClassException(String msg, Throwable t) {
+        super(msg, t);
+    }
 }

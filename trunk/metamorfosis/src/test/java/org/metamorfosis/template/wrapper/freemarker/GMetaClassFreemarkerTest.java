@@ -16,8 +16,13 @@
  */
 package org.metamorfosis.template.wrapper.freemarker;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.metamorfosis.model.FieldProperty;
+import org.metamorfosis.model.GMetaClass;
+import org.metamorfosis.model.SimpleBean;
 import org.metamorfosis.template.freemarker.AbstractFreemarkerTestCase;
 
 /**
@@ -26,32 +31,169 @@ import org.metamorfosis.template.freemarker.AbstractFreemarkerTestCase;
  */
 public class GMetaClassFreemarkerTest extends AbstractFreemarkerTestCase {
 
-    public void testClassObject2() throws Exception {
+    public void testCreate() throws Exception {
+        // from object
+        SimpleBean simpleBean = new SimpleBean();
+        simpleBean.setPropertyOne("propertyOneValue");
+        GMetaClass metaClass = new GMetaClass(simpleBean);
+        metaClass.initialize();
+
         Map root = new HashMap();
-        Bean2 bean2 = new Bean2();
-        bean2.setProp2("p2");
-        root.put("bean2", bean2);
+        root.put("bean", metaClass);
 
-        // class name
-        String expected = "Bean2";
-        String templateDef = "${bean2.class.simpleName}";
-        assertEqualsFreemarkerTemplate(root, expected, templateDef);
+        StringBuilder template = new StringBuilder();
+        template.append("${bean.propertyOne.class.name}");
 
-        // solo esta exponiendo los fields, por lo tanto al pedir el name
-        // del field pide la propiedad con getName() y no get(name)
-        expected = "java.lang.String";
-        StringBuilder sb = new StringBuilder();
-        sb.append("<#list bean2.class.declaredFields as field>");
-        sb.append("${field.type.name}");
-        sb.append("</#list>");
-        assertEqualsFreemarkerTemplate(root, expected, sb.toString());
+        assertEqualsFreemarkerTemplate(root, "java.lang.String", template.toString());
 
-        // solo dará true cuando la propiedad prop2 tenga un valor.
-        expected = "true";
-        sb = new StringBuilder();
-        sb.append("<#if bean2.prop2?? >");
-        sb.append("true");
-        sb.append("</#if>");
-        assertEqualsFreemarkerTemplate(root, expected, sb.toString());
+        // from className
+        metaClass = new GMetaClass(SimpleBean.class.getName());
+        metaClass.initialize();
+
+        root = new HashMap();
+        root.put("bean", metaClass);
+
+        template = new StringBuilder();
+        template.append("${bean.propertyOne.class.name}");
+
+        // Object por que inicialmente no tenia un valor, si se obtiene de metaClass.properties
+        // dara java.lang.String
+        assertEqualsFreemarkerTemplate(root, "java.lang.Object", template.toString());
+    }
+
+    public void testMetaClass() throws Exception {
+        // from className
+        GMetaClass metaClass = new GMetaClass(SimpleBean.class.getName());
+        metaClass.initialize();
+
+        Map root = new HashMap();
+        root.put("bean", metaClass);
+
+        // MetaClass reflected fields
+        StringBuilder template = new StringBuilder();
+        template.append("<#list bean.class.declaredFields as field>");
+        template.append("${field.name},");
+        template.append("</#list>");
+        assertEqualsFreemarkerTemplate(root, "injectedClassProperties,injectedFieldProperties,", template.toString());
+
+        // Metaclass
+        template = new StringBuilder();
+        template.append("${bean.metaClass.class.simpleName}");
+        assertEqualsFreemarkerTemplate(root, "MetaClassObject", template.toString());
+
+        // Metaclass properties
+        template = new StringBuilder();
+        template.append("<#list bean.metaClass.properties as property>");
+        template.append("${property.name}, ${property.type.name}");
+        template.append("</#list>");
+        assertEqualsFreemarkerTemplate(root, "propertyOne, java.lang.String", template.toString());
+    }
+
+    public void testInjectionMetaClass() throws Exception {
+        // from className
+        GMetaClass metaClass = new GMetaClass(SimpleBean.class.getName());
+        Map injectedProperties = new HashMap();
+        injectedProperties.put("myproperty", "value_");
+        injectedProperties.put("myproperty2", "value_2");
+        injectedProperties.put("bean2", new Bean2());
+        metaClass.setInjectedClassProperties(injectedProperties);
+
+        // inject fields
+        Collection<FieldProperty> fieldProperties = new ArrayList();
+        FieldProperty fieldProperty = new FieldProperty();
+        fieldProperty.setFieldName("propertyOne");
+        fieldProperty.setPropertyName("newProperty");
+        fieldProperty.setPropertyValue("newPropertyValue");
+        fieldProperties.add(fieldProperty);
+
+        fieldProperty = new FieldProperty();
+        fieldProperty.setFieldName("myproperty");
+        fieldProperty.setPropertyName("primaryKey");
+        fieldProperty.setPropertyValue("true");
+        fieldProperties.add(fieldProperty);
+        metaClass.setInjectedFieldProperties(fieldProperties);
+
+        fieldProperty = new FieldProperty();
+        fieldProperty.setFieldName("bean2");
+        fieldProperty.setPropertyName("inView");
+        fieldProperty.setPropertyValue("yes");
+        fieldProperties.add(fieldProperty);
+        metaClass.setInjectedFieldProperties(fieldProperties);
+
+        fieldProperty = new FieldProperty();
+        fieldProperty.setFieldName("bean2");
+        fieldProperty.setPropertyName("stateless");
+        fieldProperty.setPropertyValue("not");
+        fieldProperties.add(fieldProperty);
+        metaClass.setInjectedFieldProperties(fieldProperties);
+
+        metaClass.initialize();
+
+        Map root = new HashMap();
+        root.put("bean", metaClass);
+
+        // Metaclass properties
+        StringBuilder template = new StringBuilder();
+        template.append("<#list bean.metaClass.properties as property>");
+        template.append("${property.name},");
+        template.append("</#list>");
+        assertEqualsFreemarkerTemplate(root, "bean2,myproperty,myproperty2,propertyOne,", template.toString());
+
+        // injected properties
+        template = new StringBuilder();
+        template.append("${bean.myproperty}");
+        assertEqualsFreemarkerTemplate(root, "value_", template.toString());
+
+        // injected properties 2
+        template = new StringBuilder();
+        template.append("${bean.myproperty2}");
+        assertEqualsFreemarkerTemplate(root, "value_2", template.toString());
+
+        template = new StringBuilder();
+        template.append("${bean.propertyOne.newProperty}");
+        assertEqualsFreemarkerTemplate(root, "newPropertyValue", template.toString());
+
+        template = new StringBuilder();
+        template.append("${bean.myproperty.primaryKey}");
+        assertEqualsFreemarkerTemplate(root, "true", template.toString());
+
+        template = new StringBuilder();
+        template.append("${bean.myproperty.type.simpleName}");//injecto tambien las
+        // propiedades name y type
+        assertEqualsFreemarkerTemplate(root, "GMetaClass", template.toString());
+
+        template = new StringBuilder();
+        template.append("<#list bean.metaClass.properties as property>");
+        template.append("<#if property.newProperty??>");
+        template.append("${property.name},${property.newProperty}");
+        template.append("</#if>");
+        template.append("</#list>");
+        assertEqualsFreemarkerTemplate(root, "propertyOne,newPropertyValue", template.toString());
+
+        template = new StringBuilder();
+        template.append("<#list bean.metaClass.properties as property>");
+        template.append("<#if property.primaryKey??>");
+        template.append("${property.name},${property.primaryKey}");
+        template.append("</#if>");
+        template.append("</#list>");
+        assertEqualsFreemarkerTemplate(root, "myproperty,true", template.toString());
+
+        // object injection
+        template = new StringBuilder();
+        template.append("<#list bean.metaClass.properties as property>");
+        template.append("<#if property.inView??>");
+        template.append("${property.name},${property.inView}");
+        template.append("</#if>");
+        template.append("</#list>");
+        assertEqualsFreemarkerTemplate(root, "bean2,yes", template.toString());
+        
+        // double field injection
+        template = new StringBuilder();
+        template.append("<#list bean.metaClass.properties as property>");
+        template.append("<#if property.stateless??>");
+        template.append("${property.name},${property.stateless}");
+        template.append("</#if>");
+        template.append("</#list>");
+        assertEqualsFreemarkerTemplate(root, "bean2,not", template.toString());
     }
 }

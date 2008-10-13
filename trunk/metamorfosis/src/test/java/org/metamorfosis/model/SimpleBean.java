@@ -17,30 +17,18 @@
 package org.metamorfosis.model;
 
 /**
- * Modela las excepciones en tiempo de ejecución de los metapojos
+ *
  * @author iberck
  */
-public class MetaPojoException extends RuntimeException {
+public class SimpleBean {
 
-    /**
-     * Crea una excepcion vacía
-     */
-    public MetaPojoException() {
+    private String propertyOne;
+
+    public String getPropertyOne() {
+        return propertyOne;
     }
 
-    /**
-     * Crea una excepción con un mensaje
-     * @param msg
-     */
-    public MetaPojoException(String msg) {
-        super(msg);
-    }
-
-    /**
-     * Crea una excepción con un mensaje y un objeto con la excepcion
-     * @param msg
-     */
-    public MetaPojoException(String msg, Throwable t) {
-        super(msg, t);
+    public void setPropertyOne(String propertyOne) {
+        this.propertyOne = propertyOne;
     }
 }
