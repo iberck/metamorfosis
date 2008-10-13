@@ -32,18 +32,32 @@ import org.apache.commons.io.FilenameUtils;
  */
 public abstract class AbstractFreemarkerTestCase extends TestCase {
 
-    private static BeansWrapper bw_instance;
+    private BeansWrapper bw_instance;
     Configuration cfg;
+    /**
+     * setMethodsShadowItems
+     *
+     * Sets whether methods shadow items in beans. When true (this is the default
+     * value), ${object.name} will first try to locate a bean method or property with
+     * the specified name on the object, and only if it doesn't find it will it
+     * try to call object.get(name), the so-called "generic get method" that is
+     * usually used to access items of a container (i.e. elements of a map).
+     * When set to false, the lookup order is reversed and generic get method is
+     * called first, and only if it returns null is method lookup attempted.
+     */
 
 
-    static {
+    {
         bw_instance = SimpleObjectWrapper.getDefaultInstance();
-        bw_instance.setMethodsShadowItems(false);
-        bw_instance.setUseCache(true);
+        bw_instance.setMethodsShadowItems(true);
+        //bw_instance.setUseCache(true);
     }
 
-    public AbstractFreemarkerTestCase(String testName) {
-        super(testName);
+    public AbstractFreemarkerTestCase(String name) {
+        super(name);
+    }
+
+    public AbstractFreemarkerTestCase() {
     }
 
     @Override
