@@ -40,18 +40,18 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author iberck
  */
-public abstract class AbstractMetaClass extends LazyDynaBean {
+public abstract class AbstractGMetaClass extends LazyDynaBean implements MetaClass {
 
-    private static final Log log = LogFactory.getLog(AbstractMetaClass.class);
+    private static final Log log = LogFactory.getLog(AbstractGMetaClass.class);
     private String className;
     private MetaClassObject metaClass;
     private Object source;
 
-    protected AbstractMetaClass(Object instance) {
+    protected AbstractGMetaClass(Object instance) {
         this.source = instance;
     }
 
-    protected AbstractMetaClass(String className) {
+    protected AbstractGMetaClass(String className) {
         this.className = className;
     }
 
@@ -98,7 +98,8 @@ public abstract class AbstractMetaClass extends LazyDynaBean {
         }
     }
 
-    protected void injectClassProperty(String propName, Object propValue) throws MetaClassException {
+    @Override
+    public void injectClassProperty(String propName, Object propValue) throws MetaClassException {
         try {
             // Pone la propiedad al servicio con get('injectedPropertyName')
             PropertyUtils.setNestedProperty(this, propName, propValue);
@@ -107,7 +108,8 @@ public abstract class AbstractMetaClass extends LazyDynaBean {
         }
     }
 
-    protected void injectFieldProperty(String fieldName, String propertyName, Object propertyValue) {
+    @Override
+    public void injectFieldProperty(String fieldName, String propertyName, Object propertyValue) {
         try {
             // 1.validar que exista el field y obtenerlo
             Object fieldObj = PropertyUtils.getNestedProperty(this, fieldName);
@@ -133,7 +135,7 @@ public abstract class AbstractMetaClass extends LazyDynaBean {
             // 3. reemplazar propiedad original con el metaField
             replaceProperty(fieldName, metaField); // accesible por medio de get
             propertiesHash.put(fieldName, metaField); // accesible por medio de metaclass.properties
-            
+
         } catch (Exception ex) {
             throw new MetaClassException("No existe el field '" + fieldName + "' " +
                     "dentro de la clase '" + source + "'", ex);
@@ -219,9 +221,6 @@ public abstract class AbstractMetaClass extends LazyDynaBean {
 
     @Override
     public String toString() {
-        return source.toString();
+        return source != null ? source.toString() : super.toString();
     }
-
-    // lazy init
-    public abstract void initialize();
 }

@@ -25,7 +25,7 @@ import java.util.Set;
  * Lazy
  * @author iberck
  */
-public class GMetaClass extends AbstractMetaClass {
+public class GMetaClass extends AbstractGMetaClass {
 
     private Map<String, Object> injectedClassProperties;
     private Collection<FieldProperty> injectedFieldProperties;
@@ -61,7 +61,7 @@ public class GMetaClass extends AbstractMetaClass {
         }
 
         super.createMetaClass();
-        
+
         // inject field properties
         if (injectedFieldProperties != null) {
             for (FieldProperty injectedField : injectedFieldProperties) {

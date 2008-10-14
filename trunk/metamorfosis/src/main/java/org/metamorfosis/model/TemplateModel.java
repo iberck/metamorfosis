@@ -29,7 +29,7 @@ public class TemplateModel {
 
     private static final Log log = LogFactory.getLog(TemplateModel.class);
     private TemplateDef templateDef;
-    private List<MetaPojo> metaPojos;
+    private List<MetaClass> metaPojos;
     private MetaProperty metaProperty;
 
     @Required
@@ -41,11 +41,11 @@ public class TemplateModel {
         return templateDef;
     }
 
-    public List<MetaPojo> getMetaPojos() {
+    public List<MetaClass> getMetaPojos() {
         return metaPojos;
     }
 
-    public void setMetaPojos(List<MetaPojo> metaPojos) {
+    public void setMetaPojos(List<MetaClass> metaPojos) {
         this.metaPojos = metaPojos;
     }
 
@@ -69,10 +69,10 @@ public class TemplateModel {
             modelStr.append("property:" + property.getValue() + "}, {");
         }
 
-        List<MetaPojo> mps = getMetaPojos();
+        List<MetaClass> mps = getMetaPojos();
         if (mps != null) {
-            for (MetaPojo mp : mps) {
-                modelStr.append("metapojo:" + mp.toString());
+            for (MetaClass mp : mps) {
+                modelStr.append("metaclass:" + mp.toString());
             }
         }
         modelStr.append("}]");

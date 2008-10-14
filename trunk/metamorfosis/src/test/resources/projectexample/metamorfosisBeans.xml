@@ -9,7 +9,7 @@
     </bean>
 
     <!-- 2. definir metapojos -->
-    <bean id="customerMetaPojo" class="org.tequila.model.JMetaPojo">
+    <bean id="customerMetaPojo" class="org.tequila.model.GMetaPojo">
         <!-- TODO: Cambiar por property para ser mas entendible -->
         <constructor-arg value="org.test.pojos.Customer" />
     </bean>
