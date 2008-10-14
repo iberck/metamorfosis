@@ -6,4 +6,17 @@
     <bean id="internalTemplate" class="org.metamorfosis.model.TemplateDef">
         <property name="location" value="classpath:templates/internalTemplate.ftl"/>
     </bean>
+
+    <!-- grupo de templates -->
+    <!--
+    <bean id="templateGroup" class="org.metamorfosis.model.GroupTemplatesDef">
+        <property name="groupName" value="groupTest"/>
+        <property name="templatesDef">
+            <list>
+                <ref bean="internalTemplate"/>
+            </list>
+        </property>
+    </bean>
+    -->
+    
 </beans>
