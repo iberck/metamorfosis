@@ -38,6 +38,7 @@
         <property name="templatesDef">
             <list>
                 <ref bean="internalTemplate"/>
+                <ref bean="testTemplate"/>
             </list>
         </property>
     </bean>
