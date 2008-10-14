@@ -16,7 +16,8 @@
  */
 package org.metamorfosis.template.engine;
 
-import org.metamorfosis.model.TemplateModel;
+import org.metamorfosis.model.GroupTemplatesMatch;
+import org.metamorfosis.model.SingleTemplateMatch;
 import org.metamorfosis.model.project.ExternalProject;
 import org.metamorfosis.template.wrapper.EngineWrappersFactory;
 
@@ -32,5 +33,7 @@ public interface TemplateEngine {
 
     public EngineWrappersFactory getEngineWrappersFactory();
 
-    public void match(TemplateModel templateModel);
+    public void match(SingleTemplateMatch singleTemplateMatch);
+
+    public void match(GroupTemplatesMatch groupTemplatesMatch);
 }

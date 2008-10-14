@@ -23,25 +23,26 @@ import org.springframework.beans.factory.annotation.Required;
  *
  * @author iberck
  */
-public class TemplateModelsGroup {
+public class GroupTemplatesDef {
 
-    private String name;
-    private List<TemplateModel> templateModels;
+    private String groupName;
+    private List<TemplateDef> templatesDef;
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<TemplateModel> getTemplateModels() {
-        return templateModels;
+    public String getGroupName() {
+        return groupName;
     }
 
     @Required
-    public void setTemplateModels(List<TemplateModel> templateModels) {
-        this.templateModels = templateModels;
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+
+    public List<TemplateDef> getTemplatesDef() {
+        return templatesDef;
+    }
+
+    @Required
+    public void setTemplatesDef(List<TemplateDef> templatesDef) {
+        this.templatesDef = templatesDef;
     }
 }

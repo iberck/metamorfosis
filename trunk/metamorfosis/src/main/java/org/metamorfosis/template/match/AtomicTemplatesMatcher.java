@@ -21,10 +21,10 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Required;
-import org.metamorfosis.model.TemplateModelsGroup;
-import org.metamorfosis.model.TemplateModel;
+import org.metamorfosis.model.SingleTemplateMatch;
 import org.metamorfosis.model.project.ExternalProject;
 import org.metamorfosis.conf.SpringUtils;
+import org.metamorfosis.model.GroupTemplatesMatch;
 
 /**
  * 
@@ -34,8 +34,8 @@ public class AtomicTemplatesMatcher {
 
     private static final Log log = LogFactory.getLog(AtomicTemplatesMatcher.class);
     private TemplateEngine engine;
-    private List<TemplateModelsGroup> groupsMatch;
-    private List<TemplateModel> templatesMatch;
+    private List<SingleTemplateMatch> singleTemplatesMatch;
+    private List<GroupTemplatesMatch> groupTemplatesMatch;
     private ExternalProject project;
     private TemplatesWriterPool templatesWriterPool;
 
@@ -52,20 +52,20 @@ public class AtomicTemplatesMatcher {
         this.engine = engine;
     }
 
-    public List<TemplateModelsGroup> getGroupsMatch() {
-        return groupsMatch;
+    public List<SingleTemplateMatch> getSingleTemplatesMatch() {
+        return singleTemplatesMatch;
     }
 
-    public void setGroupsMatch(List<TemplateModelsGroup> groupsMatch) {
-        this.groupsMatch = groupsMatch;
+    public void setSingleTemplatesMatch(List<SingleTemplateMatch> singleTemplatesMatch) {
+        this.singleTemplatesMatch = singleTemplatesMatch;
     }
 
-    public List<TemplateModel> getTemplatesMatch() {
-        return templatesMatch;
+    public List<GroupTemplatesMatch> getGroupTemplatesMatch() {
+        return groupTemplatesMatch;
     }
 
-    public void setTemplatesMatch(List<TemplateModel> templatesMatch) {
-        this.templatesMatch = templatesMatch;
+    public void setGroupTemplatesMatch(List<GroupTemplatesMatch> groupTemplatesMatch) {
+        this.groupTemplatesMatch = groupTemplatesMatch;
     }
 
     public ExternalProject getProject() {
@@ -78,26 +78,26 @@ public class AtomicTemplatesMatcher {
     }
 
     private void match() {
-        log.info("Realizando el match de plantillas y modelos");
+        log.info("Realizando el match entre plantillas y modelos");
 
-        if (templatesMatch == null && groupsMatch == null) {
+        if (singleTemplatesMatch == null && groupTemplatesMatch == null) {
             throw new IllegalArgumentException("No se definido ningún templatesMatch ni groupsMatch");
         }
 
-        if (templatesMatch != null) {
-            for (TemplateModel tModel : templatesMatch) {
+        // procesar plantillas simples
+        if (singleTemplatesMatch != null) {
+            log.info("Single template match");
+            for (SingleTemplateMatch tModel : singleTemplatesMatch) {
                 log.info("Realizando el match de: " + tModel);
                 engine.match(tModel);
             }
         }
 
-        if (groupsMatch != null) {
-            for (TemplateModelsGroup tModelGroup : groupsMatch) {
-                List<TemplateModel> templateModels = tModelGroup.getTemplateModels();
-                for (TemplateModel tModel : templateModels) {
-                    log.info("Realizando el match de: " + tModel);
-                    engine.match(tModel);
-                }
+        // procesar grupos de plantillas
+        if (groupTemplatesMatch != null) {
+            log.info("Group template match");
+            for (GroupTemplatesMatch gtm : groupTemplatesMatch) {
+                engine.match(gtm);
             }
         }
     }

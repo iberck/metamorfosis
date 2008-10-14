@@ -16,6 +16,8 @@
  */
 package org.metamorfosis.template.engine;
 
+import org.metamorfosis.model.GroupTemplatesDef;
+import org.metamorfosis.model.GroupTemplatesMatch;
 import org.metamorfosis.model.TemplateDef;
 import org.metamorfosis.template.match.MatchException;
 import freemarker.core.Environment;
@@ -35,7 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.metamorfosis.model.MetaClass;
 import org.metamorfosis.model.MetaProperty;
-import org.metamorfosis.model.TemplateModel;
+import org.metamorfosis.model.SingleTemplateMatch;
 import org.metamorfosis.model.project.ExternalProject;
 import org.metamorfosis.template.directive.TemplateDirective;
 import org.metamorfosis.template.wrapper.EngineWrappersFactory;
@@ -57,10 +59,14 @@ public class FreemarkerEngine implements TemplateEngine {
     private Configuration cfg;
     private EngineWrappersFactory engineWrappersFactory;
 
-    public FreemarkerEngine() {
+
+    {
         bw_instance = SimpleObjectWrapper.getDefaultInstance();
-        bw_instance.setMethodsShadowItems(false);
+        //bw_instance.setMethodsShadowItems(false);
         bw_instance.setUseCache(true);
+    }
+
+    public FreemarkerEngine() {
         engineWrappersFactory = new FreemarkerWrappersFactory();
     }
 
@@ -70,16 +76,8 @@ public class FreemarkerEngine implements TemplateEngine {
     }
 
     @Override
-    public void match(TemplateModel templateModel) {
-
+    public void match(SingleTemplateMatch templateModel) {
         try {
-            TemplateDef templateDef = templateModel.getTemplateDef();
-            InputStream is = templateDef.getLocation().getInputStream();
-            InputStreamReader reader = new InputStreamReader(is);
-            Template template = new Template(templateDef.getName(), reader, cfg);
-
-            StringWriter sw = new StringWriter();
-
             // create model root
             Map root = new HashMap();
 
@@ -88,6 +86,7 @@ public class FreemarkerEngine implements TemplateEngine {
 
             // ${project}
             root.putAll(projectWrapped);
+
             // ${metapojos}
             List<MetaClass> metaPojos = templateModel.getMetaPojos();
             if (metaPojos != null) {
@@ -103,6 +102,13 @@ public class FreemarkerEngine implements TemplateEngine {
                 root.putAll((Map) metaPropertyWrapped);
             }
 
+            // process template
+            TemplateDef templateDef = templateModel.getTemplateDef();
+            InputStream is = templateDef.getLocation().getInputStream();
+            InputStreamReader reader = new InputStreamReader(is);
+            Template template = new Template(templateDef.getName(), reader, cfg);
+
+            StringWriter sw = new StringWriter();
             Environment env = template.createProcessingEnvironment(root, sw);
             env.process(); // process the template
             sw.close();
@@ -120,7 +126,7 @@ public class FreemarkerEngine implements TemplateEngine {
     @Override
     public void setUpEnvironment(ExternalProject project) {
         log.info("Setting up freemarker environment");
-        
+
         project.setProjectWrapperFactory(
                 getEngineWrappersFactory().getProjectWrapperFactory());
         projectWrapped = (Map) project.getProjectWrapper().wrap(project);
@@ -139,12 +145,65 @@ public class FreemarkerEngine implements TemplateEngine {
     @Override
     public void setUpDirectives() {
         log.info("Setting up freemarker directives");
-        
+
         directivesWrapped = new HashMap();
 
         TemplateDirective[] fmDirectives = SpringUtils.getFreemarkerDirectives();
         for (TemplateDirective directive : fmDirectives) {
             directivesWrapped.put(directive.getDirectiveName(), directive);
+        }
+    }
+
+    @Override
+    public void match(GroupTemplatesMatch groupTemplatesMatch) {
+        // create model
+        Map root = new HashMap();
+
+        // put directives
+        root.putAll(directivesWrapped);
+
+        // ${project}
+        root.putAll(projectWrapped);
+
+        // ${metapojos}
+        List<MetaClass> metaPojos = groupTemplatesMatch.getMetaPojos();
+        if (metaPojos != null) {
+            Object metaPojosWrapped = getEngineWrappersFactory().getMetaPojosWrapper().wrap(metaPojos);
+            root.putAll((Map) metaPojosWrapped);
+        }
+
+        // ${metaproperty}
+        MetaProperty metaProperty = groupTemplatesMatch.getMetaProperty();
+        if (metaProperty != null) {
+            MetaPropertyWrapper metaPropertyWrapper = getEngineWrappersFactory().getMetaPropertyWrapper();
+            Object metaPropertyWrapped = metaPropertyWrapper.wrap(metaProperty);
+            root.putAll((Map) metaPropertyWrapped);
+        }
+
+        // process templates
+        GroupTemplatesDef groupTemplatesDef = groupTemplatesMatch.getGroupTemplatesDef();
+        List<TemplateDef> templatesDef = groupTemplatesDef.getTemplatesDef();
+        for (TemplateDef templateDef : templatesDef) {
+            try {
+                InputStream is = templateDef.getLocation().getInputStream();
+                InputStreamReader reader = new InputStreamReader(is);
+                Template template = new Template(templateDef.getName(), reader, cfg);
+
+                StringWriter sw = new StringWriter();
+                Environment env = template.createProcessingEnvironment(root, sw);
+                env.process(); // process the template
+                sw.close();
+            } catch (TemplateException ex) {
+                String templateName = templateDef.getName();
+                throw new MatchException("No se pudo procesar el grupo de templates '" +
+                        groupTemplatesDef.getGroupName() + "' ya que al hacer match del template '" +
+                        templateName + "' ocurrio error en la definición", ex);
+            } catch (IOException ex) {
+                String templateName = templateDef.getName();
+                throw new MatchException("No se pudo procesar el grupo de templates '" +
+                        groupTemplatesDef.getGroupName() + "' ya que al hacer match del template '" +
+                        templateName + "' ocurrio error de i/o", ex);
+            }
         }
     }
 }

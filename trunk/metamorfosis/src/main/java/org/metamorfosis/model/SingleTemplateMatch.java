@@ -25,10 +25,12 @@ import org.springframework.beans.factory.annotation.Required;
  *
  * @author iberck
  */
-public class TemplateModel {
+public class SingleTemplateMatch {
 
-    private static final Log log = LogFactory.getLog(TemplateModel.class);
+    private static final Log log = LogFactory.getLog(SingleTemplateMatch.class);
+    // template
     private TemplateDef templateDef;
+    // model
     private List<MetaClass> metaPojos;
     private MetaProperty metaProperty;
 
