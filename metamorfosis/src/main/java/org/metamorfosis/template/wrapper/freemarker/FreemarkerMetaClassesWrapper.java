@@ -20,30 +20,29 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.metamorfosis.model.JMetaPojo;
-import org.metamorfosis.model.MetaPojo;
-import org.metamorfosis.template.wrapper.MetaPojosWrapper;
+import org.metamorfosis.model.MetaClass;
+import org.metamorfosis.template.wrapper.MetaClassesWrapper;
 
 /**
  *
  * @author iberck
  */
-public class FreemarkerMetaPojosWrapper implements MetaPojosWrapper<JMetaPojo> {
+public class FreemarkerMetaClassesWrapper implements MetaClassesWrapper<MetaClass> {
 
-    FreemarkerMetaPojosWrapper() {
+    FreemarkerMetaClassesWrapper() {
     }
 
     @Override
-    public Map wrap(List<JMetaPojo> metaPojos) {
+    public Map wrap(List<MetaClass> metaPojos) {
         List metaPojosInjected = new ArrayList();
 
-        for (MetaPojo metaPojo : metaPojos) {
-            Object injectedObject = metaPojo.createInjectedObject();
-            metaPojosInjected.add(injectedObject);
+        for (MetaClass metaClass : metaPojos) {
+            metaClass.initialize();
+            metaPojosInjected.add(metaClass);
         }
 
         Map m = new HashMap();
-        m.put(MetaPojosWrapper.POJOS_KEY, metaPojosInjected);
+        m.put(MetaClassesWrapper.KEY, metaPojosInjected);
 
         return m;
     }

@@ -14,24 +14,19 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.metamorfosis.model;
+package org.metamorfosis.template.wrapper;
 
 import java.util.List;
-import java.util.Map;
+import org.metamorfosis.model.MetaClass;
 
 /**
  *
  * @author iberck
  */
-public interface MetaPojo {
+public interface MetaClassesWrapper<T extends MetaClass> extends ObjectWrapper<List<T>> {
 
-    public void injectPojoProperty(String propertyName, Object propertyValue);
+    public final static String KEY = "classes";
 
-    public void injectFieldProperty(String fieldName, String propertyName, Object propertyValue);
-
-    public Object createInjectedObject();
-
-    public void setInjectedPropertiesMap(Map<String, Object> m);
-
-    public void setInjectedFields(List<FieldProperty> injectedFields);
+    @Override
+    public Object wrap(List<T> dynamicClasses);
 }

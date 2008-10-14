@@ -24,8 +24,8 @@ import junit.framework.TestCase;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.metamorfosis.model.AbstractMetaClass.MetaClassObject;
-import org.metamorfosis.model.AbstractMetaClass.MetaClassProperty;
+import org.metamorfosis.model.AbstractGMetaClass.MetaClassObject;
+import org.metamorfosis.model.AbstractGMetaClass.MetaClassProperty;
 
 /**
  *

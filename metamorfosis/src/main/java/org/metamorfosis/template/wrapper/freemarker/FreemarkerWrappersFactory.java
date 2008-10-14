@@ -17,7 +17,7 @@
 package org.metamorfosis.template.wrapper.freemarker;
 
 import org.metamorfosis.template.wrapper.EngineWrappersFactory;
-import org.metamorfosis.template.wrapper.MetaPojosWrapper;
+import org.metamorfosis.template.wrapper.MetaClassesWrapper;
 import org.metamorfosis.template.wrapper.MetaPropertyWrapper;
 import org.metamorfosis.template.wrapper.ProjectWrapperFactory;
 
@@ -38,7 +38,7 @@ public class FreemarkerWrappersFactory implements EngineWrappersFactory {
     }
 
     @Override
-    public MetaPojosWrapper getMetaPojosWrapper() {
-        return new FreemarkerMetaPojosWrapper();
+    public MetaClassesWrapper getMetaPojosWrapper() {
+        return new FreemarkerMetaClassesWrapper();
     }
 }

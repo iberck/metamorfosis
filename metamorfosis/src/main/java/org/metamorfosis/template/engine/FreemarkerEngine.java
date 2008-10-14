@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.metamorfosis.model.MetaPojo;
+import org.metamorfosis.model.MetaClass;
 import org.metamorfosis.model.MetaProperty;
 import org.metamorfosis.model.TemplateModel;
 import org.metamorfosis.model.project.ExternalProject;
@@ -89,7 +89,7 @@ public class FreemarkerEngine implements TemplateEngine {
             // ${project}
             root.putAll(projectWrapped);
             // ${metapojos}
-            List<MetaPojo> metaPojos = templateModel.getMetaPojos();
+            List<MetaClass> metaPojos = templateModel.getMetaPojos();
             if (metaPojos != null) {
                 Object metaPojosWrapped = getEngineWrappersFactory().getMetaPojosWrapper().wrap(metaPojos);
                 root.putAll((Map) metaPojosWrapped);

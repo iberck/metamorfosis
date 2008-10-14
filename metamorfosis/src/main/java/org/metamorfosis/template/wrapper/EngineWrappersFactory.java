@@ -26,5 +26,5 @@ public interface EngineWrappersFactory {
 
     public MetaPropertyWrapper getMetaPropertyWrapper();
 
-    public MetaPojosWrapper getMetaPojosWrapper();
+    public MetaClassesWrapper getMetaPojosWrapper();
 }
