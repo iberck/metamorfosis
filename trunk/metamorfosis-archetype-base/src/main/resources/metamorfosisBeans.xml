@@ -2,7 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
-    <import resource="classpath:templates-def.xml"/>
+    <import resource="classpath:core-freemarker-templates.xml"/>
 
     <!-- 1. definir proyecto -->
     <bean id="injectedProjectTest" class="org.metamorfosis.model.project.NbJProject">
@@ -10,7 +10,7 @@
     </bean>
 
     <!-- 2. definir metapojos -->
-    <bean id="customerMetaPojo" class="org.metamorfosis.model.GMetaClass">
+    <bean id="customerMetaPojo" class="org.metamorfosis.model.JMetaClass">
         <!-- TODO: Cambiar por property para ser mas entendible -->
         <constructor-arg value="org.test.pojos.Customer" />
     </bean>
@@ -20,8 +20,9 @@
         <property name="location" value="templates/test1.ftl"/>
     </bean>
 
-    <!-- 4. definir modelo del template -->
-    <bean id="testTemplateModel" class="org.metamorfosis.model.TemplateModel">
+    <!-- 4. definir match del template -->
+    <!--
+    <bean id="testTemplateMatch" class="org.metamorfosis.model.SingleTemplateMatch">
         <property name="templateDef" ref="testTemplate"/>
         <property name="metaPojos">
             <list>
@@ -29,18 +30,28 @@
             </list>
         </property>
     </bean>
+    -->
     
-    <!-- ======================== internal template -->
-    <bean id="internalTemplateModel" class="org.metamorfosis.model.TemplateModel">
-        <property name="templateDef" ref="internalTemplate"/>
+    <!-- grupo de templates -->
+    <bean id="templateGroup" class="org.metamorfosis.model.GroupTemplatesDef">
+        <property name="groupName" value="groupTest"/>
+        <property name="templatesDef">
+            <list>
+                <ref bean="internalTemplate"/>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="testTemplateGroupMatch" class="org.metamorfosis.model.GroupTemplatesMatch">
+        <property name="groupTemplatesDef" ref="templateGroup"/>
+        
         <property name="metaPojos">
             <list>
                 <ref bean="customerMetaPojo"/>
             </list>
         </property>
     </bean>
-    <!-- ======================== -->
-
+    
     <!-- 5. definir engine -->
     <bean id="engine" class="org.metamorfosis.template.engine.FreemarkerEngine"/>
     
@@ -48,11 +59,22 @@
     <bean id="atomicMatcher" class="org.metamorfosis.template.match.AtomicTemplatesMatcher">
         <property name="engine" ref="engine"/>
         <property name="project" ref="injectedProjectTest"/>
-        <property name="templatesMatch">
+        
+        <!-- procesar una lista de templates simples -->
+        <!--
+        <property name="singleTemplatesMatch">
             <list>
-                <ref bean="testTemplateModel"/>
-                <!--<ref bean="internalTemplateModel"/>-->
+                <ref bean="testTemplateMatch"/>
             </list>
         </property>
+        -->
+        
+        <!-- procesar una lista de grupos-->
+        <property name="groupTemplatesMatch">
+            <list>
+                <ref bean="testTemplateGroupMatch"/>
+            </list>
+        </property>
+        
     </bean>
 </beans>
