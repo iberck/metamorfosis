@@ -16,7 +16,6 @@
  */
 package org.metamorfosis.model.project;
 
-import org.metamorfosis.model.project.InternalClassPath;
 import java.io.File;
 import java.lang.reflect.Field;
 import junit.framework.TestCase;

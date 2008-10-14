@@ -25,16 +25,16 @@ import java.util.Set;
  * Lazy
  * @author iberck
  */
-public class GMetaClass extends AbstractGMetaClass {
+public class JMetaClass extends AbstractJMetaClass {
 
     private Map<String, Object> injectedClassProperties;
     private Collection<FieldProperty> injectedFieldProperties;
 
-    public GMetaClass(String className) {
+    public JMetaClass(String className) {
         super(className);
     }
 
-    public GMetaClass(Object instance) {
+    public JMetaClass(Object instance) {
         super(instance);
     }
 

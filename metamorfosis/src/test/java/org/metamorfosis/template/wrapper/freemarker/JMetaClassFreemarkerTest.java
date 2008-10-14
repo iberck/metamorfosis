@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.metamorfosis.model.FieldProperty;
-import org.metamorfosis.model.GMetaClass;
+import org.metamorfosis.model.JMetaClass;
 import org.metamorfosis.model.SimpleBean;
 import org.metamorfosis.template.freemarker.AbstractFreemarkerTestCase;
 
@@ -29,13 +29,13 @@ import org.metamorfosis.template.freemarker.AbstractFreemarkerTestCase;
  *
  * @author iberck
  */
-public class GMetaClassFreemarkerTest extends AbstractFreemarkerTestCase {
+public class JMetaClassFreemarkerTest extends AbstractFreemarkerTestCase {
 
     public void testCreate() throws Exception {
         // from object
         SimpleBean simpleBean = new SimpleBean();
         simpleBean.setPropertyOne("propertyOneValue");
-        GMetaClass metaClass = new GMetaClass(simpleBean);
+        JMetaClass metaClass = new JMetaClass(simpleBean);
         metaClass.initialize();
 
         Map root = new HashMap();
@@ -47,7 +47,7 @@ public class GMetaClassFreemarkerTest extends AbstractFreemarkerTestCase {
         assertEqualsFreemarkerTemplate(root, "java.lang.String", template.toString());
 
         // from className
-        metaClass = new GMetaClass(SimpleBean.class.getName());
+        metaClass = new JMetaClass(SimpleBean.class.getName());
         metaClass.initialize();
 
         root = new HashMap();
@@ -63,7 +63,7 @@ public class GMetaClassFreemarkerTest extends AbstractFreemarkerTestCase {
 
     public void testMetaClass() throws Exception {
         // from className
-        GMetaClass metaClass = new GMetaClass(SimpleBean.class.getName());
+        JMetaClass metaClass = new JMetaClass(SimpleBean.class.getName());
         metaClass.initialize();
 
         Map root = new HashMap();
@@ -91,7 +91,7 @@ public class GMetaClassFreemarkerTest extends AbstractFreemarkerTestCase {
 
     public void testInjectionMetaClass() throws Exception {
         // from className
-        GMetaClass metaClass = new GMetaClass(SimpleBean.class.getName());
+        JMetaClass metaClass = new JMetaClass(SimpleBean.class.getName());
         Map injectedProperties = new HashMap();
         injectedProperties.put("myproperty", "value_");
         injectedProperties.put("myproperty2", "value_2");
@@ -160,7 +160,7 @@ public class GMetaClassFreemarkerTest extends AbstractFreemarkerTestCase {
         template = new StringBuilder();
         template.append("${bean.myproperty.type.simpleName}");//injecto tambien las
         // propiedades name y type
-        assertEqualsFreemarkerTemplate(root, "GMetaClass", template.toString());
+        assertEqualsFreemarkerTemplate(root, "JMetaClass", template.toString());
 
         template = new StringBuilder();
         template.append("<#list bean.metaClass.properties as property>");

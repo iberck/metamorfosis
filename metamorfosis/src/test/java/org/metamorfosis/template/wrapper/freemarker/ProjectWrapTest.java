@@ -16,8 +16,6 @@
  */
 package org.metamorfosis.template.wrapper.freemarker;
 
-import org.metamorfosis.template.wrapper.freemarker.FreemarkerJWebProjectWrapper;
-import org.metamorfosis.template.wrapper.freemarker.FreemarkerJProjectWrapper;
 import java.io.File;
 import java.util.Map;
 import org.metamorfosis.model.project.JProject;

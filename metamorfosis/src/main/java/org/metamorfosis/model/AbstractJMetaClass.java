@@ -28,11 +28,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Sigue cuatro principios básicos.
+ * Esta clase modela cuatro principios básicos.
  *
  * 1. Se le pueden inyectar propiedades a la clase
  * 2. Se le pueden inyectar propiedades a los fields
- * 
  * 3. Tiene un objeto metaClass el cual contiene una lista de propiedades
  *    originales e inyectadas.
  * 4. Las propiedades originales e inyectadas serán accesibles por medio de
@@ -40,18 +39,18 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author iberck
  */
-public abstract class AbstractGMetaClass extends LazyDynaBean implements MetaClass {
+public abstract class AbstractJMetaClass extends LazyDynaBean implements MetaClass {
 
-    private static final Log log = LogFactory.getLog(AbstractGMetaClass.class);
+    private static final Log log = LogFactory.getLog(AbstractJMetaClass.class);
     private String className;
     private MetaClassObject metaClass;
     private Object source;
 
-    protected AbstractGMetaClass(Object instance) {
+    protected AbstractJMetaClass(Object instance) {
         this.source = instance;
     }
 
-    protected AbstractGMetaClass(String className) {
+    protected AbstractJMetaClass(String className) {
         this.className = className;
     }
 
@@ -116,7 +115,7 @@ public abstract class AbstractGMetaClass extends LazyDynaBean implements MetaCla
 
             // 2. MetaClass
             // datos del objeto original (copySource)
-            GMetaClass metaField = new GMetaClass(fieldObj);
+            JMetaClass metaField = new JMetaClass(fieldObj);
             Map<String, Object> metaFieldClassProperties = new HashMap();
 
             // datos inyectados (propertyName:propertyValue)
@@ -219,6 +218,14 @@ public abstract class AbstractGMetaClass extends LazyDynaBean implements MetaCla
         }
     }
 
+    /**
+     * Se utiliza para cuando se obtenga inyectado un objeto de tipo JMetaClass
+     * de tal forma que al obtener su valor obtenga el de su objeto original.toString()
+     *
+     * instance.get('gMetaClassInstance')
+     *
+     * @return
+     */
     @Override
     public String toString() {
         return source != null ? source.toString() : super.toString();

@@ -16,12 +16,7 @@
  */
 package org.metamorfosis.model.project;
 
-import org.metamorfosis.model.project.NbJProject;
-import org.metamorfosis.model.project.FreeJProject;
-import org.metamorfosis.model.project.JProject;
-import org.metamorfosis.model.project.NbJWebProject;
 import junit.framework.TestCase;
-import org.metamorfosis.model.project.InternalClassPath;
 
 /**
  *

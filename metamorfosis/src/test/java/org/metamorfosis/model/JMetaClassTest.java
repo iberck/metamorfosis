@@ -24,19 +24,19 @@ import junit.framework.TestCase;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.metamorfosis.model.AbstractGMetaClass.MetaClassObject;
-import org.metamorfosis.model.AbstractGMetaClass.MetaClassProperty;
+import org.metamorfosis.model.AbstractJMetaClass.MetaClassObject;
+import org.metamorfosis.model.AbstractJMetaClass.MetaClassProperty;
 
 /**
  *
  * @author iberck
  */
-public class GMetaClassTest extends TestCase {
+public class JMetaClassTest extends TestCase {
 
-    private static final Log log = LogFactory.getLog(GMetaClassTest.class);
+    private static final Log log = LogFactory.getLog(JMetaClassTest.class);
 
     public void testCreate() throws Exception {
-        GMetaClass metaClass = new GMetaClass(SimpleBean.class.getName());
+        JMetaClass metaClass = new JMetaClass(SimpleBean.class.getName());
         metaClass.initialize();
 
         MetaClassObject _metaClass = metaClass.getMetaClass();
@@ -50,7 +50,7 @@ public class GMetaClassTest extends TestCase {
     }
 
     public void testInjectPropertyClass() throws Exception {
-        GMetaClass metaClass = new GMetaClass(SimpleBean.class.getName());
+        JMetaClass metaClass = new JMetaClass(SimpleBean.class.getName());
 
         Map injectedProperties = new HashMap();
         injectedProperties.put("myproperty", "value_");
@@ -71,7 +71,7 @@ public class GMetaClassTest extends TestCase {
     public void testMetaClassValues() throws Exception {
         SimpleBean simpleBean = new SimpleBean();
         simpleBean.setPropertyOne("this is a property one");
-        GMetaClass metaClass = new GMetaClass(simpleBean);
+        JMetaClass metaClass = new JMetaClass(simpleBean);
 
         Map injectedProperties = new HashMap();
         injectedProperties.put("myproperty", "value_");
@@ -88,7 +88,7 @@ public class GMetaClassTest extends TestCase {
     }
 
     public void testInjectFieldPropertyClass() throws Exception {
-        GMetaClass metaClass = new GMetaClass(SimpleBean.class.getName());
+        JMetaClass metaClass = new JMetaClass(SimpleBean.class.getName());
         // inyectar propiedades a nivel clase
         Map injectedClassProperties = new HashMap();
         injectedClassProperties.put("myproperty", "value_");
@@ -113,7 +113,7 @@ public class GMetaClassTest extends TestCase {
 
         // test inyectar un field original
         Object propertyOne = PropertyUtils.getNestedProperty(metaClass, "propertyOne");
-        assertEquals("GMetaClass", propertyOne.getClass().getSimpleName());
+        assertEquals("JMetaClass", propertyOne.getClass().getSimpleName());
         
         Object newProperty = PropertyUtils.getNestedProperty(propertyOne, "newProperty");
         assertEquals("newPropertyValue", newProperty);
@@ -122,7 +122,7 @@ public class GMetaClassTest extends TestCase {
         assertEquals("newPropertyValue", newProperty);
 
         // test inyectar un field inyectado
-        GMetaClass injectedField = (GMetaClass) PropertyUtils.getNestedProperty(metaClass, "myproperty");
+        JMetaClass injectedField = (JMetaClass) PropertyUtils.getNestedProperty(metaClass, "myproperty");
         assertEquals("value_", injectedField.toString());
         
         Object primaryKey = PropertyUtils.getNestedProperty(injectedField, "primaryKey");
@@ -134,7 +134,7 @@ public class GMetaClassTest extends TestCase {
         // test metaclass
         /*MetaClassProperty[] properties = metaClass.getMetaClass().getProperties().toArray(new MetaClassProperty[0]);
         assertEquals("myproperty", properties[0].getName());
-        assertEquals("GMetaClass", properties[0].getType().getSimpleName());
+        assertEquals("JMetaClass", properties[0].getType().getSimpleName());
         assertEquals("propertyOne", properties[1].getName());
         assertEquals("java.lang.String", properties[1].getType().getName());
          */ 
