@@ -6,11 +6,11 @@
 
     <!-- 1. definir proyecto -->
     <bean id="injectedProjectTest" class="org.metamorfosis.model.project.NbJProject">
-        <property name="path" value="D:/projects/project1"/>
+        <property name="path" value="C:/projects/Project1"/>
     </bean>
 
     <!-- 2. definir metapojos -->
-    <bean id="customerMetaPojo" class="org.metamorfosis.model.JMetaPojo">
+    <bean id="customerMetaPojo" class="org.metamorfosis.model.GMetaClass">
         <!-- TODO: Cambiar por property para ser mas entendible -->
         <constructor-arg value="org.test.pojos.Customer" />
     </bean>
@@ -51,7 +51,7 @@
         <property name="templatesMatch">
             <list>
                 <ref bean="testTemplateModel"/>
-                <ref bean="internalTemplateModel"/>
+                <!--<ref bean="internalTemplateModel"/>-->
             </list>
         </property>
     </bean>
