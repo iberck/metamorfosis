@@ -40,7 +40,6 @@ import org.metamorfosis.template.directive.TemplateDirective;
 import org.metamorfosis.template.match.TemplateProcessed;
 import org.metamorfosis.template.match.TemplatesWriterPool;
 import org.metamorfosis.conf.SpringUtils;
-import org.metamorfosis.conf.ProjectHolder;
 
 /**
  *
@@ -50,13 +49,10 @@ public class JFileSection extends Observable implements TemplateDirectiveModel, 
 
     private static final Log log = LogFactory.getLog(JFileSection.class);
     private TemplatesWriterPool pool;
-    private ProjectHolder projectHolder;
 
     public JFileSection() {
         pool = (TemplatesWriterPool) SpringUtils.getBean("templatesWriterPool");
         addObserver(pool);
-
-        projectHolder = (ProjectHolder) SpringUtils.getBean("projectHolder");
     }
 
     @Override
@@ -94,7 +90,7 @@ public class JFileSection extends Observable implements TemplateDirectiveModel, 
                 bw.close();
                 sw.close();
 
-                JProject project = (JProject) projectHolder.getProject();
+                JProject project = (JProject) SpringUtils.getProject();
                 String srcPath = project.getSrcPath();
                 if ("true".equalsIgnoreCase(test)) {
                     srcPath = project.getTestPath();

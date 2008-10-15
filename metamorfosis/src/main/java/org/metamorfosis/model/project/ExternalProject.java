@@ -16,6 +16,7 @@
  */
 package org.metamorfosis.model.project;
 
+import java.io.File;
 import org.springframework.beans.factory.annotation.Required;
 import org.metamorfosis.template.wrapper.ProjectWrapper;
 import org.metamorfosis.template.wrapper.ProjectWrapperFactory;
@@ -49,6 +50,10 @@ public interface ExternalProject {
      */
     public void validateProject() throws ProjectException;
 
+    public boolean existsInProject(String directory);
+
+    public File getInProjectPath(String relativePath);
+
     /**
      * Obtiene el wrapper del proyecto, el wrapper del proyecto servirá para saber
      * con que tipo de clase debe crear el framework el objeto para la plantilla.
@@ -71,5 +76,4 @@ public interface ExternalProject {
      * @return
      */
     public ProjectWrapperFactory getProjectWrapperFactory();
-
 }
