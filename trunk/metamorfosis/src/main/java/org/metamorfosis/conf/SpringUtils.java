@@ -19,6 +19,7 @@ package org.metamorfosis.conf;
 import freemarker.template.TemplateDirectiveModel;
 import java.util.Collection;
 import java.util.Map;
+import org.metamorfosis.model.project.ExternalProject;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -58,5 +59,9 @@ public class SpringUtils {
         }
 
         return fmDirectives;
+    }
+
+    public static ExternalProject getProject() {
+        return ((ProjectHolder) SpringUtils.getBean("projectHolder")).getProject();
     }
 }

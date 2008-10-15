@@ -161,9 +161,15 @@ public abstract class JProject implements ExternalProject {
      * @param path
      * @return true si existe, false si no existe
      */
+    @Override
     public boolean existsInProject(String directory) {
         File f = new File(getPath() + File.separator + directory);
-        return f.exists() && f.isDirectory();
+        return f.exists();
+    }
+
+    @Override
+    public File getInProjectPath(String relativePath) {
+        return new File(getPath() + File.separator + relativePath);
     }
 
     /**

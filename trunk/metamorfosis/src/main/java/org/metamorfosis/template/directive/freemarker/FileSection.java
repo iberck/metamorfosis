@@ -23,19 +23,23 @@ import freemarker.template.TemplateDirectiveModel;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateModel;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Observable;
 import java.util.Set;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.metamorfosis.conf.SpringUtils;
+import org.metamorfosis.model.project.ExternalProject;
 import org.metamorfosis.template.directive.DirectiveException;
+import org.metamorfosis.template.directive.FileProcessor;
 import org.metamorfosis.template.directive.TemplateDirective;
 import org.metamorfosis.template.match.TemplateProcessed;
 import org.metamorfosis.template.match.TemplatesWriterPool;
-import org.metamorfosis.conf.SpringUtils;
 
 /**
  *
@@ -45,9 +49,9 @@ public class FileSection extends Observable
         implements TemplateDirectiveModel, TemplateDirective {
 
     private static final Log log = LogFactory.getLog(FileSection.class);
-    private static final String PATH = "path";
-    private static final String NAME = "name";
-    private static final String APPEND_BEFORE_LAST = "appendBeforeLast";
+    private static final String FILE_PATH = "filePath";
+    private static final String APPEND_BEFORE = "appendBefore";
+    private static final String APPEND_AFTER = "appendAfter";
 
     public FileSection() {
         TemplatesWriterPool pool = (TemplatesWriterPool) SpringUtils.getBean("templatesWriterPool");
@@ -60,10 +64,10 @@ public class FileSection extends Observable
             TemplateDirectiveBody body) {
         log.debug("Ejecutando <@" + getDirectiveName() + " .../>");
 
-        // Check if params were given
+        // Validar parametros
         if (params.isEmpty()) {
             throw new DirectiveException(
-                    "<@" + getDirectiveName() + " .../> 'path, name' are required parameters.");
+                    "<@" + getDirectiveName() + " .../> 'filePath' es requerido en los parámetros.");
         }
 
         if (loopVars.length != 0) {
@@ -76,25 +80,26 @@ public class FileSection extends Observable
             try {
                 // Executes the nested body. Same as <#nested> in FTL, except
                 // that we use our own writer instead of the current output writer.
-                String path = null;
-                String name = null;
-                String appendBeforeLast = null;
+                String filePath = null;
+                String appendBefore = null;
+                String appendAfter = null;
+
                 Set<Entry<String, SimpleScalar>> entrySet = params.entrySet();
                 for (Entry<String, SimpleScalar> entry : entrySet) {
                     String key = entry.getKey();
                     SimpleScalar value = entry.getValue();
-                    if (key.equals(PATH)) {
-                        path = value.getAsString();
-                    } else if (key.equals(NAME)) {
-                        name = value.getAsString();
-                    } else if (key.equals(APPEND_BEFORE_LAST)) {
-                        appendBeforeLast = value.getAsString();
+                    if (key.equals(FILE_PATH)) {
+                        filePath = value.getAsString();
+                    } else if (key.equals(APPEND_BEFORE)) {
+                        appendBefore = value.getAsString();
+                    } else if (key.equals(APPEND_AFTER)) {
+                        appendAfter = value.getAsString();
                     } else {
                         throw new DirectiveException("<@" + getDirectiveName() + " .../> doesn't allow " + key + " parameter");
                     }
                 }
 
-                // write the file
+                // Escribir resultado del procesamiento en un buffer
                 StringWriter sw = new StringWriter();
                 BufferedWriter bw = new BufferedWriter(sw);
                 body.render(bw);
@@ -103,10 +108,19 @@ public class FileSection extends Observable
                 sw.flush();
                 bw.close();
                 sw.close();
+
+                // =============================================================
+                ExternalProject project = SpringUtils.getProject();
+                File fFilePath = project.getInProjectPath(filePath);
+                String originalFileStr = FileUtils.readFileToString(fFilePath);
+                String result = FileProcessor.process(getDirectiveName(), filePath, appendBefore, appendAfter, originalFileStr, sw.toString());
+
                 TemplateProcessed tp = new TemplateProcessed();
-                tp.setTemplateResult(sw.toString());
-                tp.setOutputFolder(path);
-                tp.setOutputFileName(name);
+                tp.setTemplateResult(result);
+
+                // TODO: Put outputfoler and filename
+                //tp.setOutputFolder(filePath);
+                //tp.setOutputFileName(name);
 
                 // notificar a los observadores
                 super.setChanged();
