@@ -135,14 +135,11 @@ public class AppendFileSection extends Observable
                 AppendFileSectionLogic logic = new AppendFileSectionLogic(originalFileStr, sw.toString());
                 String result = logic.process(position, ocurrenceCount, ocurrence);
 
-                TemplateProcessed tp = new TemplateProcessed();
-                tp.setTemplateResult(result);
+                String outputFolder = FilenameUtils.getFullPath(filePath);
+                String outputFileName = FilenameUtils.getName(filePath);
 
-                String fileDir = FilenameUtils.getFullPath(filePath);
-                String fileName = FilenameUtils.getName(filePath);
-                
-                tp.setOutputFolder(fileDir);
-                tp.setOutputFileName(fileName);
+                TemplateProcessed tp = new TemplateProcessed(originalFileStr, 
+                        outputFolder, outputFileName, result);
 
                 // notificar a los observadores
                 super.setChanged();
