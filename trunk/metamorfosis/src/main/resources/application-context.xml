@@ -7,8 +7,8 @@
     <bean id="projectHolder" class="org.metamorfosis.conf.ProjectHolder"/>
 
     <!-- freemarker directives -->
-    <bean id="fileSectionFreemarker"
-          class="org.metamorfosis.template.directive.freemarker.FileSection"/>
+    <bean id="appendFileSectionFreemarker"
+          class="org.metamorfosis.template.directive.freemarker.AppendFileSection"/>
     <bean id="jFileSectionFreemarker"
           class="org.metamorfosis.template.directive.freemarker.JFileSection"/>
 </beans>
