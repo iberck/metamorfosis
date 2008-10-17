@@ -7,7 +7,7 @@ ${project.name}
 
 <#list classes as clase>
     <#list clase.metaClass.properties as property>
-        ${property.type}, ${property.name}
+        ${property.tyspe}, ${property.name}
     </#list>
 </#list>
 
