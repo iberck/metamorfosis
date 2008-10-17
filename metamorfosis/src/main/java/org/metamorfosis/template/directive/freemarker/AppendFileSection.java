@@ -31,12 +31,13 @@ import java.util.Map.Entry;
 import java.util.Observable;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.metamorfosis.conf.SpringUtils;
 import org.metamorfosis.model.project.ExternalProject;
+import org.metamorfosis.template.directive.AppendFileSectionLogic;
 import org.metamorfosis.template.directive.DirectiveException;
-import org.metamorfosis.template.directive.FileProcessor;
 import org.metamorfosis.template.directive.TemplateDirective;
 import org.metamorfosis.template.match.TemplateProcessed;
 import org.metamorfosis.template.match.TemplatesWriterPool;
@@ -45,17 +46,24 @@ import org.metamorfosis.template.match.TemplatesWriterPool;
  *
  * @author iberck
  */
-public class FileSection extends Observable
+public class AppendFileSection extends Observable
         implements TemplateDirectiveModel, TemplateDirective {
 
-    private static final Log log = LogFactory.getLog(FileSection.class);
+    private static final Log log = LogFactory.getLog(AppendFileSection.class);
     private static final String FILE_PATH = "filePath";
-    private static final String APPEND_BEFORE = "appendBefore";
-    private static final String APPEND_AFTER = "appendAfter";
+    private static final String POSITION = "position";
+    private static final String OCURRENCE_COUNT = "ocurrenceCount";
+    private static final String OCURRENCE = "ocurrence";
+    private String msgErr;
 
-    public FileSection() {
+    public AppendFileSection() {
         TemplatesWriterPool pool = (TemplatesWriterPool) SpringUtils.getBean("templatesWriterPool");
         addObserver(pool);
+
+        msgErr = "Error en la directiva, sintaxis: <@" + getDirectiveName() + " filePath=\"" +
+                "position=\"[before | after]\"," +
+                "ocurrenceCount=\"[first | last | number]\"," +
+                "ocurrence=\"[ocurrencia a buscar dentro de filePath]\"/>";
     }
 
     @Override
@@ -66,13 +74,12 @@ public class FileSection extends Observable
 
         // Validar parametros
         if (params.isEmpty()) {
-            throw new DirectiveException(
-                    "<@" + getDirectiveName() + " .../> 'filePath' es requerido en los parámetros.");
+            throw new DirectiveException(msgErr);
         }
 
         if (loopVars.length != 0) {
             throw new DirectiveException(
-                    "<@" + getDirectiveName() + " .../> doesn't allow loop variables.");
+                    "<@" + getDirectiveName() + " .../> no acepta loop variables.");
         }
 
         // If there is non-empty nested content:
@@ -81,8 +88,9 @@ public class FileSection extends Observable
                 // Executes the nested body. Same as <#nested> in FTL, except
                 // that we use our own writer instead of the current output writer.
                 String filePath = null;
-                String appendBefore = null;
-                String appendAfter = null;
+                String position = null;
+                String ocurrenceCount = null;
+                String ocurrence = null;
 
                 Set<Entry<String, SimpleScalar>> entrySet = params.entrySet();
                 for (Entry<String, SimpleScalar> entry : entrySet) {
@@ -90,12 +98,14 @@ public class FileSection extends Observable
                     SimpleScalar value = entry.getValue();
                     if (key.equals(FILE_PATH)) {
                         filePath = value.getAsString();
-                    } else if (key.equals(APPEND_BEFORE)) {
-                        appendBefore = value.getAsString();
-                    } else if (key.equals(APPEND_AFTER)) {
-                        appendAfter = value.getAsString();
+                    } else if (key.equals(POSITION)) {
+                        position = value.getAsString();
+                    } else if (key.equals(OCURRENCE_COUNT)) {
+                        ocurrenceCount = value.getAsString();
+                    } else if (key.equals(OCURRENCE)) {
+                        ocurrence = value.getAsString();
                     } else {
-                        throw new DirectiveException("<@" + getDirectiveName() + " .../> doesn't allow " + key + " parameter");
+                        throw new DirectiveException("<@" + getDirectiveName() + " .../> no acepta el parámetro '" + key + "'");
                     }
                 }
 
@@ -110,17 +120,29 @@ public class FileSection extends Observable
                 sw.close();
 
                 // =============================================================
+                // 1. El filePath debe existir dentro del proyecto
                 ExternalProject project = SpringUtils.getProject();
+                File absProjectPath = project.getInProjectPath(filePath);
+                if (!project.existsInProject(filePath)) {
+                    throw new DirectiveException("<@AppendFileSection .../> " +
+                            "No se encuentra el archivo '" + absProjectPath + "', " +
+                            "se requiere que exista el filePath '" + filePath + "' " +
+                            "dentro del proyecto original");
+                }
+
                 File fFilePath = project.getInProjectPath(filePath);
                 String originalFileStr = FileUtils.readFileToString(fFilePath);
-                String result = FileProcessor.process(getDirectiveName(), filePath, appendBefore, appendAfter, originalFileStr, sw.toString());
+                AppendFileSectionLogic logic = new AppendFileSectionLogic(originalFileStr, sw.toString());
+                String result = logic.process(position, ocurrenceCount, ocurrence);
 
                 TemplateProcessed tp = new TemplateProcessed();
                 tp.setTemplateResult(result);
 
-                // TODO: Put outputfoler and filename
-                //tp.setOutputFolder(filePath);
-                //tp.setOutputFileName(name);
+                String fileDir = FilenameUtils.getFullPath(filePath);
+                String fileName = FilenameUtils.getName(filePath);
+                
+                tp.setOutputFolder(fileDir);
+                tp.setOutputFileName(fileName);
 
                 // notificar a los observadores
                 super.setChanged();
@@ -133,12 +155,12 @@ public class FileSection extends Observable
             }
 
         } else {
-            throw new DirectiveException("missing body");
+            throw new DirectiveException("<@" + getDirectiveName() + "missing body");
         }
     }
 
     @Override
     public String getDirectiveName() {
-        return "FileSection";
+        return "AppendFileSection";
     }
 }

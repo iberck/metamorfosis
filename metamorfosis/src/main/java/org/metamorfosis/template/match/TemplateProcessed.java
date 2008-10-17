@@ -63,7 +63,8 @@ public class TemplateProcessed {
 
         try {
             // crear el directorio si no existiera
-            File sourceDir = new File(project.getPath() + getOutputFolder());
+            File sourceDir = new File(project.getPath() + File.separator + getOutputFolder());
+            log.debug("->sourceDir: " + sourceDir);
             if (!sourceDir.exists()) {
                 log.warn("El directorio '" + sourceDir + "' no existe");
                 log.info("Creando el directorio '" + sourceDir + "'");
@@ -71,11 +72,13 @@ public class TemplateProcessed {
             }
 
             // crear el archivo
-            sourceFile = new File(sourceDir, getOutputFileName());
+            sourceFile = new File(sourceDir + File.separator + getOutputFileName());
+            log.debug("->sourceFile: " + sourceFile);
+            
             FileUtils.writeStringToFile(sourceFile, getTemplateResult());
             log.info("Escribiendo el archivo '" + sourceDir + "'");
         } catch (IOException ex) {
-            throw new MatchException("Error al escribir el archivo '" + sourceFile + "'", ex);
+            throw new MatchException("Error al escribir el archivo '" + sourceFile + getTemplateResult() + "'", ex);
         }
     }
 
