@@ -99,10 +99,9 @@ public class JFileSection extends Observable implements TemplateDirectiveModel, 
                 String jFileName = JFileSection.getJFileName(sw.toString());
                 String jPackagePath = JFileSection.getPackagePath(sw.toString());
 
-                TemplateProcessed tp = new TemplateProcessed();
-                tp.setOutputFolder(File.separator + srcPath + File.separator + jPackagePath);
-                tp.setOutputFileName(jFileName);
-                tp.setTemplateResult(sw.toString());
+                String outputFolder = File.separator + srcPath + File.separator + jPackagePath;
+                TemplateProcessed tp = new TemplateProcessed(outputFolder, jFileName, sw.toString());
+                
 
                 super.setChanged();
                 super.notifyObservers(tp);
