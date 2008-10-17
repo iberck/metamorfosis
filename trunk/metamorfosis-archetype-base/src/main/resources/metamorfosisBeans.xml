@@ -24,7 +24,6 @@
     </bean>
 
     <!-- 4. definir match del template -->
-    
     <bean id="testTemplateMatch" class="org.metamorfosis.model.SingleTemplateMatch">
         <property name="templateDef" ref="testTemplate"/>
         <property name="metaPojos">
@@ -33,7 +32,6 @@
             </list>
         </property>
     </bean>
-    
     <bean id="testTemplateMatch2" class="org.metamorfosis.model.SingleTemplateMatch">
         <property name="templateDef" ref="testTemplate2"/>
         <property name="metaPojos">
